@@ -9,6 +9,21 @@ int n = 0 ;
 /* Funkcja do parsowania wiadomości NMEA $GNGLL
 ** Synopsis:
 ** $<TalkerID>GLL,<Lat>,<N/S>,<Lon>,<E/W>,<UTC>,<Status>,<ModeInd>*<Checksum><CR><LF>
+** Synopsis:
+** $<TalkerID>GSA,<Mode>,<FixMode>,{<SatID>},<PDOP>,<HDOP>,<VDOP><SystemID>*<Checksum><CR><LF>
+Parameter:
+<Mode>:
+    M = Manual, forced to operate in 2D or 3D mode
+    A = Automatic, allowed to automatically switch to 2D/3D
+<FixMode>:
+    1 = Fix not available
+    2 = 2D
+    3 = 3D
+<SatID>: IDs of satellites used in solution.
+<PDOP>: Position dilution of precision. Maximum value: 99.0.
+<HDOP>: Horizontal dilution of precision. Maximum value: 99.0.
+<VDOP>: Vertical dilution of precision. Maximum value: 99.0.
+<SystemID>: GNSS system ID.
 */
 int my_nmea_message ( char* c , char* m , int* i )
 {
