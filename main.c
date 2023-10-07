@@ -2,8 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+double nmea2decimal ( const char* , char ) ;
+
+char nmea_message[255] ;
 char nmea_gngll_message[255] ;
-char gngll[6] = "$GNGLL" ;
 int n = 0 ;
 
 /* Funkcja do parsowania wiadomości NMEA $GNGLL
@@ -25,55 +27,27 @@ Parameter:
 <VDOP>: Vertical dilution of precision. Maximum value: 99.0.
 <SystemID>: GNSS system ID.
 */
-int my_nmea_message ( char* c , char* m , int* i )
-{
-    if ( *c == '$' )
-    {
-        *i = 0 ;
-        m[(*i)++] = *c ;
-        m[*i] = '\0' ;
-        return 0 ;
-    }
-    if ( ( *c >= ' ' && *c <= '~' && *i > 0 ) || *c == '\r' )
-    {
-        m[(*i)++] = *c ;
-        m[*i] = '\0' ;
-        return 1 ;
-    }
-    if ( *c == '\n' && *i > 1 )
-    {
-        if ( m[--(*i)] == '\r' )
-        {
-            m[*i] = '\0' ;
-            return 2 ;
-        }
-    }
-    return -1 ;
-}
 
 int main ()
 {
-    char nmea_stream[] = "$GNCGA,5216.7071,N,02048.5512,E,210042.000,A,A*4E\r\n$GNGLL,5216.7071,N,02048.5512,E,210042.000,A,A*4E\r\n$GPGLL,5216.7071,N,02048.5512,E,210042.000,A,A*4E\r\n";
-    int i ;
-    int l = strlen ( nmea_stream ) ;
-    int r ;
-    for ( i = 0 ; i < l ; i++ )
-    {
-        r = my_nmea_message ( &nmea_stream[i] , nmea_gngll_message , &n ) ;
-        if ( r == 2 && !strncmp ( nmea_gngll_message , gngll , 6 ) )
-        {
-            printf ( nmea_gngll_message ) ;
-        }
-    }
-    
-    /*
-    if (parseGNGLL(nmea, &latitude, &longitude) == 0) {
-        printf("Szerokość geograficzna: %.4lf\n", latitude);
-        printf("Długość geograficzna: %.4lf\n", longitude);
-        printf("Wprowadź te dane do Google Maps: %.4lf, %.4lf\n", latitude, longitude);
-    } else {
-        printf("Błąd parsowania wiadomości NMEA.\n");
-    }
-    */
+    char nmea_stream[] = "$GNCGA,5216.7071,N,02048.5512,E,210042.000,A,A*4E\r\n$GNGLL,5216.7071,N,02048.5512,E,210042.000,A,A*4E\r\n$GNGSA,A,3,12,19,32,06,11,28,,,,,,,1.69,1.42,0.91,1*06\r\n$GPGLL,5216.7071,N,02048.5512,E,210042.000,A,A*4E\r\n";
+    // strtok ()
+    const char* latitude = "5216.7071" ;
+    char lat_dir = "N";
+    const char* longitude = "02048.5512" ;
+    char long_dir = "E" ;
+    double lat = nmea2decimal ( latitude , lat_dir ) ;
+    double lon = nmea2decimal ( longitude , long_dir ) ;
     return 0;
+}
+
+// Function to convert NMEA coordinates to decimal degrees
+double nmea2decimal ( const char *coord , char direction )
+{
+    double degrees, minutes;
+    sscanf(coord, "%lf", &degrees);
+    minutes = degrees / 100;
+    degrees = (int)minutes;
+    minutes = minutes - degrees;
+    return degrees + minutes / 0.6 * ((direction == 'S' || direction == 'W') ? -1 : 1);
 }
